@@ -17,11 +17,11 @@ struct HomeCard: View {
                 .font(.headline)
             Text(content)
                 .font(.subheadline)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.myGray)
         }
         .padding()
         .frame(maxWidth: .infinity, minHeight: 200, alignment: .topLeading)
-        .background(.thinMaterial)
+        .background(.cardBG)
         .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
     }
 }
@@ -46,6 +46,7 @@ struct HomeView: View {
                 }
                 .padding()
             }
+            .background(.BG)
         }
         .navigationTitle("Welcome!")
         .navigationBarTitleDisplayMode(.large)

@@ -221,7 +221,7 @@ struct PomodoroStepsView: View {
                 }
             }
             .padding(24)
-            .background(.regularMaterial)
+            .background(.cardBG)
             .cornerRadius(24)
 
         }
@@ -288,6 +288,7 @@ struct PickTimerView: View {
             }
             .padding(.bottom, 32)
         }
+        .background(Color("BG"))
     }
 }
 

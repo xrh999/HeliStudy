@@ -6,12 +6,9 @@
 //
 
 import SwiftUI
-import Clerk
 
 @main
 struct Best_Study_AppApp: App {
-    @State private var clerk = Clerk.shared
-
     var body: some Scene {
         WindowGroup {
             ContentView()

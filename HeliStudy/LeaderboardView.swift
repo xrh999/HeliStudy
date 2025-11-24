@@ -73,9 +73,12 @@ struct LeaderboardView: View {
                 }
             }
             .scrollContentBackground(.hidden)
+            .listRowBackground(Color("cardBG"))
             Spacer()
+            
         }
         .frame(maxHeight: .infinity)
+        .background(.BG)
         .task {
             do {
                 times = try await supabase
@@ -105,3 +108,4 @@ struct LeaderboardView: View {
 #Preview {
     LeaderboardView()
 }
+

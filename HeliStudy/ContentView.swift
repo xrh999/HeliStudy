@@ -32,11 +32,8 @@ struct ContentView: View {
             Tab("Leaderboard", systemImage: "trophy", value: Tabs.leaderboard) {
                 LeaderboardView()
             }
-            // If you really want a Search tab, provide its content here.
-            // For now, we can omit it or add a placeholder:
-            Tab(value: Tabs.search, role: .search) {
-                    ToDoView()
-                        .searchable(text: $searchString)
+            Tab("To Do", systemImage: "list.bullet", value: Tabs.todo) {
+                ToDoView()
             }
         }
         .accentColor(.accentColour)
