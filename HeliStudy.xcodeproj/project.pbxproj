@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		29A88D3A2FC85FA000B40EE8 /* HeliSpaced.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeliSpaced.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		29A88D3A2FC85FA000B40EE8 /* HeliStudy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HeliStudy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		29A88D3C2FC85FA000B40EE8 /* HeliSpaced */ = {
+		29A88D3C2FC85FA000B40EE8 /* HeliStudy */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HeliSpaced;
+			path = HeliStudy;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -32,7 +32,7 @@
 		29A88D312FC85FA000B40EE8 = {
 			isa = PBXGroup;
 			children = (
-				29A88D3C2FC85FA000B40EE8 /* HeliSpaced */,
+				29A88D3C2FC85FA000B40EE8 /* HeliStudy */,
 				29A88D3B2FC85FA000B40EE8 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -40,7 +40,7 @@
 		29A88D3B2FC85FA000B40EE8 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				29A88D3A2FC85FA000B40EE8 /* HeliSpaced.app */,
+				29A88D3A2FC85FA000B40EE8 /* HeliStudy.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -48,9 +48,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		29A88D392FC85FA000B40EE8 /* HeliSpaced */ = {
+		29A88D392FC85FA000B40EE8 /* HeliStudy */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 29A88D452FC85FA200B40EE8 /* Build configuration list for PBXNativeTarget "HeliSpaced" */;
+			buildConfigurationList = 29A88D452FC85FA200B40EE8 /* Build configuration list for PBXNativeTarget "HeliStudy" */;
 			buildPhases = (
 				29A88D362FC85FA000B40EE8 /* Sources */,
 				29A88D372FC85FA000B40EE8 /* Frameworks */,
@@ -61,13 +61,13 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				29A88D3C2FC85FA000B40EE8 /* HeliSpaced */,
+				29A88D3C2FC85FA000B40EE8 /* HeliStudy */,
 			);
-			name = HeliSpaced;
+			name = HeliStudy;
 			packageProductDependencies = (
 			);
 			productName = HeliSpaced;
-			productReference = 29A88D3A2FC85FA000B40EE8 /* HeliSpaced.app */;
+			productReference = 29A88D3A2FC85FA000B40EE8 /* HeliStudy.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -99,7 +99,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				29A88D392FC85FA000B40EE8 /* HeliSpaced */,
+				29A88D392FC85FA000B40EE8 /* HeliStudy */,
 			);
 		};
 /* End PBXProject section */
@@ -320,7 +320,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		29A88D452FC85FA200B40EE8 /* Build configuration list for PBXNativeTarget "HeliSpaced" */ = {
+		29A88D452FC85FA200B40EE8 /* Build configuration list for PBXNativeTarget "HeliStudy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				29A88D462FC85FA200B40EE8 /* Debug */,
