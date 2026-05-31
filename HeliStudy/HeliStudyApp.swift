@@ -14,6 +14,6 @@ struct HeliStudyApp: App {
         WindowGroup {
             ContentView()
         }
-        .modelContainer(for: Entry.self)
+        .modelContainer(for: SRTask.self)
     }
 }

@@ -9,41 +9,44 @@ import SwiftUI
 
 struct CreateNewTask: View {
     var onSave: (String, String, Int) -> Void = { _,_,_ in }
-    @State private var TaskName = ""
-    @State private var TaskDesc = ""
-    @State private var Completed = 1;
-    @State private var ConfirmDeletion = false;
-    @State private var ShowEmptyAlert = false;
+    @State private var taskName = ""
+    @State private var taskDesc = ""
+    @State private var completed = 1;
+    @State private var confirmDeletion = false;
+    @State private var showEmptyAlert = false;
     @Environment(\.dismiss) private var dismiss
+    enum TaskType {
+        case sr, repeated, normal
+    }
+    @State private var selectedTask: TaskType = .sr
+    
     var body: some View {
-        NavigationStack{
-            Form {
-                Section(header: Text("Task info")) {
-                    TextField(
-                        "Task Name",
-                        text: $TaskName
-                    )
-                    TextField(
-                        "Description (optional)",
-                        text : $TaskDesc
-                    )
+        NavigationStack {
+            Group {
+                Picker (selection: $selectedTask) {
+                    Text("Spaced Repetition").tag(TaskType.sr)
+                    Text("Repeating Task").tag(TaskType.repeated)
+                    Text("To Do").tag(TaskType.normal)
+                } label: {
+                    Text("Just a test")
                 }
-                Section(header: Text("Times repeated?")) {
-                    Stepper (value: $Completed) {
-                        Text("\(Completed)")
-                    }
+                .pickerStyle(.segmented)
+                switch selectedTask {
+                case .sr: NewSRTaskView
+                case .repeated: NewRepeatedTaskView
+                case .normal: NewNormalTaskView
                 }
             }
-            .navigationTitle("Add Spaced Task")
+            .navigationTitle("Add Task")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Group {
                         Button {
-                            if (TaskName.isEmpty) {
-                                ShowEmptyAlert = true
+                            if (taskName.isEmpty) {
+                                showEmptyAlert = true
                             } else {
-                                onSave(TaskName, TaskDesc, Completed)
+                                onSave(taskName, taskDesc, completed)
                                 dismiss()
                             }
                         } label: {
@@ -51,14 +54,14 @@ struct CreateNewTask: View {
                         }
                         .buttonStyle(.borderedProminent)
                     }
-                    .alert("Please fill it in", isPresented: $ShowEmptyAlert) {
-                        Button("OK", role: .cancel) { }
+                    .alert("Please fill it in", isPresented: $showEmptyAlert) {
+                        Button("Ok", role: .cancel) {showEmptyAlert = false}
                     }
                 }
                 ToolbarItem(placement: .topBarLeading) {
                     Group {
                         Button {
-                            if (!TaskName.isEmpty) { ConfirmDeletion = true }
+                            if (!taskName.isEmpty) { confirmDeletion = true }
                             else { dismiss() }
                         } label: {
                             Image(systemName: "trash")
@@ -67,16 +70,16 @@ struct CreateNewTask: View {
                     }
                     .alert(
                         "Are you sure?",
-                        isPresented: $ConfirmDeletion
+                        isPresented: $confirmDeletion
                     ) {
                         Button(role: .destructive) {
-                            ConfirmDeletion = false
+                            confirmDeletion = false
                             dismiss()
                         } label: {
                             Text("Kaboom")
                         }
                         Button(role: .cancel) {
-                            ConfirmDeletion = false
+                            confirmDeletion = false
                         } label: {
                             Text("Cancel")
                         }
@@ -89,8 +92,69 @@ struct CreateNewTask: View {
         .padding(5)
         .background(Color(uiColor: .systemGroupedBackground))
     }
+    
+    private var NewSRTaskView: some View {
+        Form {
+            Section(header: Text("Task info")) {
+                TextField(
+                    "Task Name",
+                    text: $taskName
+                )
+                TextField(
+                    "Description (optional)",
+                    text: $taskDesc
+                )
+            }
+            Section(header: Text("Times repeated?")) {
+                Stepper(value: $completed, in: 0...Int.max) {
+                    Text("\(completed)")
+                }
+            }
+        }
+    }
+    
+    private var NewRepeatedTaskView: some View {
+        Form {
+            Section(header: Text("Task info")) {
+                TextField(
+                    "Task Name",
+                    text: $taskName
+                )
+                TextField(
+                    "Description (optional)",
+                    text: $taskDesc
+                )
+            }
+            Section(header: Text("Times repeated?")) {
+                Stepper(value: $completed, in: 0...Int.max) {
+                    Text("\(completed)")
+                }
+            }
+        }
+    }
+    
+    private var NewNormalTaskView: some View {
+        Form {
+            Section(header: Text("Task info")) {
+                TextField(
+                    "Task Name",
+                    text: $taskName
+                )
+                TextField(
+                    "Description (optional)",
+                    text: $taskDesc
+                )
+            }
+            Section(header: Text("Times repeated?")) {
+                Stepper(value: $completed, in: 0...Int.max) {
+                    Text("\(completed)")
+                }
+            }
+        }
+    }
 }
 
 #Preview {
     CreateNewTask()
 }
+

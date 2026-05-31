@@ -7,10 +7,10 @@
 
 import Foundation
 import SwiftData
-var fib = [1, 2, 3]
+var fib = [1, 1, 2, 3]
 
 @Model
-class Entry: Equatable {
+class SRTask: Equatable {
     var name: String
     var dateCreated: Date
     var desc: String?
@@ -33,5 +33,37 @@ class Entry: Equatable {
         self.desc = desc
         self.repCnt = repCnt
         self.nextDate = nextDate
+    }
+}
+
+@Model
+class RTask: Equatable {
+    var name: String
+    var dateCreated: Date
+    var desc: String?
+    var repInterval: Int
+    
+    func reviewed() {
+        dateCreated.addTimeInterval(TimeInterval(repInterval))
+    }
+    
+    init (name: String, dateCreated: Date = Date(), desc: String? = nil, repInterval: Int) {
+        self.name = name
+        self.dateCreated = dateCreated
+        self.desc = desc
+        self.repInterval = repInterval
+    }
+}
+
+@Model
+class NormalTask: Equatable {
+    var name: String
+    var dateDue: Date
+    var desc: String?
+    
+    init (name: String, dateDue: Date, desc: String? = nil) {
+        self.name = name
+        self.dateDue = dateDue
+        self.desc = desc
     }
 }

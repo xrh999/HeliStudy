@@ -10,33 +10,32 @@ import SwiftData
 
 struct TaskView: View {
     @Environment(\.modelContext) private var context
-    @Query private var Entries: [Entry]
-    @State private var IsOpen = false
+    @Query private var SRTasks: [SRTask]
+    @State private var isOpen = false
     var body: some View {
         NavigationStack {
             VStack {
-                if Entries.isEmpty {
+                if SRTasks.isEmpty {
                     emptyState
                 }
                 else {
-                    List(Entries) {
+                    List(SRTasks) {
                         Text($0.name)
                     }
                 }
             }
             .navigationTitle("Tasks")
-            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar{
                 Button {
-                    IsOpen = true
+                    isOpen = true
                 } label: {
                     Image(systemName: "plus")
                 }
             }
         }
-        .sheet(isPresented: $IsOpen, onDismiss: {IsOpen = false}) {
+        .sheet(isPresented: $isOpen, onDismiss: {isOpen = false}) {
             CreateNewTask { newTaskName, newTaskDesc, newCompleted in
-                let newEntry = Entry(name: newTaskName, desc: newTaskDesc, repCnt: newCompleted)
+                let newEntry = SRTask(name: newTaskName, desc: newTaskDesc, repCnt: newCompleted)
                 context.insert(newEntry)
                 try? context.save()
             }
@@ -56,5 +55,5 @@ struct TaskView: View {
 
 #Preview {
     TaskView()
-        .modelContainer(for: Entry.self, inMemory: true)
+        .modelContainer(for: SRTask.self, inMemory: true)
 }
