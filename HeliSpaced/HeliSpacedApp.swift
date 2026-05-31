@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
 
 @main
 struct HeliSpacedApp: App {
@@ -13,5 +14,6 @@ struct HeliSpacedApp: App {
         WindowGroup {
             ContentView()
         }
+        .modelContainer(for: Entry.self)
     }
 }

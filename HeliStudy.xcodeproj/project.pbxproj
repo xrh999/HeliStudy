@@ -85,7 +85,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 29A88D352FC85FA000B40EE8 /* Build configuration list for PBXProject "HeliSpaced" */;
+			buildConfigurationList = 29A88D352FC85FA000B40EE8 /* Build configuration list for PBXProject "HeliStudy" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -311,7 +311,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		29A88D352FC85FA000B40EE8 /* Build configuration list for PBXProject "HeliSpaced" */ = {
+		29A88D352FC85FA000B40EE8 /* Build configuration list for PBXProject "HeliStudy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				29A88D432FC85FA200B40EE8 /* Debug */,

@@ -12,7 +12,8 @@ struct CreateNewTask: View {
     @State private var TaskName = ""
     @State private var TaskDesc = ""
     @State private var Completed = 1;
-    @State private var ShowAlert = false;
+    @State private var ConfirmDeletion = false;
+    @State private var ShowEmptyAlert = false;
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         NavigationStack{
@@ -37,39 +38,52 @@ struct CreateNewTask: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "checkmark")
+                    Group {
+                        Button {
+                            if (TaskName.isEmpty) {
+                                ShowEmptyAlert = true
+                            } else {
+                                onSave(TaskName, TaskDesc, Completed)
+                                dismiss()
+                            }
+                        } label: {
+                            Image(systemName: "checkmark")
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
+                    .alert("Please fill it in", isPresented: $ShowEmptyAlert) {
+                        Button("OK", role: .cancel) { }
+                    }
                 }
                 ToolbarItem(placement: .topBarLeading) {
-                    Button {
-                        ShowAlert = true
-                    } label: {
-                        Image(systemName: "trash")
+                    Group {
+                        Button {
+                            if (!TaskName.isEmpty) { ConfirmDeletion = true }
+                            else { dismiss() }
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .tint(.red)
                     }
-                    .tint(.red)
+                    .alert(
+                        "Are you sure?",
+                        isPresented: $ConfirmDeletion
+                    ) {
+                        Button(role: .destructive) {
+                            ConfirmDeletion = false
+                            dismiss()
+                        } label: {
+                            Text("Kaboom")
+                        }
+                        Button(role: .cancel) {
+                            ConfirmDeletion = false
+                        } label: {
+                            Text("Cancel")
+                        }
+                    } message: {
+                        Text("All changes will be unsaved")
+                    }
                 }
-            }
-            .alert(
-                "Are you sure?",
-                isPresented: $ShowAlert
-            ) {
-                Button(role: .destructive) {
-                    ShowAlert = false
-                    dismiss()
-                } label: {
-                    Text("Kaboom")
-                }
-                Button (role: .cancel) {
-                    ShowAlert = false
-                } label: {
-                    Text("Cancel")
-                }
-            } message: {
-                Text("All changes will be unsaved")
             }
         }
         .padding(5)
