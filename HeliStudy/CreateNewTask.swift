@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-
+ 
 struct CreateNewTask: View {
     var onSave: (String, String, Int) -> Void = { _,_,_ in }
     @State private var taskName = ""
@@ -22,7 +22,7 @@ struct CreateNewTask: View {
     
     var body: some View {
         NavigationStack {
-            Group {
+            VStack(spacing: 0) {
                 Picker (selection: $selectedTask) {
                     Text("Spaced Repetition").tag(TaskType.sr)
                     Text("Repeating Task").tag(TaskType.repeated)
@@ -153,8 +153,9 @@ struct CreateNewTask: View {
         }
     }
 }
-
+ 
 #Preview {
     CreateNewTask()
 }
-
+ 
+ 
