@@ -10,16 +10,16 @@ import SwiftData
 
 struct TaskView: View {
     @Environment(\.modelContext) private var context
-    @Query private var SRTasks: [SRTask]
+    @Query private var Tasks: [Task]
     @State private var isOpen = false
     var body: some View {
         NavigationStack {
             VStack {
-                if SRTasks.isEmpty {
+                if Tasks.isEmpty {
                     emptyState
                 }
                 else {
-                    List(SRTasks) {
+                    List(Tasks) {
                         Text($0.name)
                     }
                 }
@@ -35,7 +35,7 @@ struct TaskView: View {
         }
         .sheet(isPresented: $isOpen, onDismiss: {isOpen = false}) {
             CreateNewTask { newTaskName, newTaskDesc, newCompleted in
-                let newEntry = SRTask(name: newTaskName, desc: newTaskDesc, repCnt: newCompleted)
+                let newEntry = Task(type: .sr, name: newTaskName, desc: newTaskDesc, repCnt: newCompleted)
                 context.insert(newEntry)
                 try? context.save()
             }
@@ -55,5 +55,5 @@ struct TaskView: View {
 
 #Preview {
     TaskView()
-        .modelContainer(for: SRTask.self, inMemory: true)
+        .modelContainer(for: Task.self, inMemory: true)
 }

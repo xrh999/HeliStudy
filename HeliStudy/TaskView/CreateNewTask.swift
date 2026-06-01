@@ -19,9 +19,6 @@ struct CreateNewTask: View {
     @State private var endDate = Date()
     @FocusState private var isKeyboardFocused: Bool
     @Environment(\.dismiss) private var dismiss
-    enum TaskType {
-        case sr, repeated, normal
-    }
     @State private var selectedTask: TaskType = .repeated
     
     var body: some View {

@@ -9,61 +9,56 @@ import Foundation
 import SwiftData
 var fib = [1, 1, 2, 3]
 
-@Model
-class SRTask: Equatable {
-    var name: String
-    var dateCreated: Date
-    var desc: String?
-    var repCnt: Int
-    var nextDate: Date
+enum TaskType: Int, Codable {
+    case sr = 0, repeated = 1, normal = 2
+}
 
+@Model
+class Task: Equatable {
+    var type: TaskType
+    var name: String
+    var desc: String?
+    var dateCreated = Date()
+    
+    // If it is spaced or repeated
+    var nextDate: Date?
+    
+    // If it is spaced
+    var repCnt: Int?
+    
+    // If it is repeated
+    var repeatInterval: Int?
+    
+    // If it is normal
+    var dueDate: Date?
+    var completed: Bool?
+    
     func reviewed() {
-        if (repCnt >= fib.count) {
-            while (fib.count <= repCnt) {
-                fib.append(fib[fib.count - 1] + fib[fib.count - 2]);
+        switch type {
+        case .sr:
+            if (repCnt! >= fib.count) {
+                while (fib.count <= repCnt!) {
+                    fib.append(fib[fib.count - 1] + fib[fib.count - 2]);
+                }
             }
+            nextDate = Calendar.current.date(byAdding: .day, value: fib[repCnt!], to: nextDate!)
+            repCnt! += 1
+        case .repeated:
+            dateCreated.addTimeInterval(TimeInterval(repeatInterval!))
+        case .normal:
+            completed = true
         }
-        nextDate = Calendar.current.date(byAdding: .day, value: fib[repCnt], to: nextDate)!
-        repCnt += 1
     }
     
-    init (name: String, dateCreated: Date = Date(), desc: String? = nil, repCnt: Int = 0, nextDate: Date = Date()) {
+    init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), nextDate: Date? = nil, repCnt: Int? = nil, repeatInterval: Int? = nil, dueDate: Date? = nil, completed: Bool? = nil) {
+        self.type = type
         self.name = name
-        self.dateCreated = dateCreated
         self.desc = desc
-        self.repCnt = repCnt
+        self.dateCreated = dateCreated
         self.nextDate = nextDate
-    }
-}
-
-@Model
-class RTask: Equatable {
-    var name: String
-    var dateCreated: Date
-    var desc: String?
-    var repInterval: Int
-    
-    func reviewed() {
-        dateCreated.addTimeInterval(TimeInterval(repInterval))
-    }
-    
-    init (name: String, dateCreated: Date = Date(), desc: String? = nil, repInterval: Int) {
-        self.name = name
-        self.dateCreated = dateCreated
-        self.desc = desc
-        self.repInterval = repInterval
-    }
-}
-
-@Model
-class NormalTask: Equatable {
-    var name: String
-    var dateDue: Date
-    var desc: String?
-    
-    init (name: String, dateDue: Date, desc: String? = nil) {
-        self.name = name
-        self.dateDue = dateDue
-        self.desc = desc
+        self.repCnt = repCnt
+        self.repeatInterval = repeatInterval
+        self.dueDate = dueDate
+        self.completed = completed
     }
 }
