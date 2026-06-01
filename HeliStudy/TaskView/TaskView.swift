@@ -21,6 +21,14 @@ struct TaskView: View {
                 else {
                     List(Tasks) {
                         Text($0.name)
+                        switch $0.type {
+                        case .sr:
+                            Text("Spaced Repetition")
+                        case .repeated:
+                            Text("Repeating Task")
+                        case .normal:
+                            Text("Normal Task")
+                        }
                     }
                 }
             }
@@ -34,9 +42,8 @@ struct TaskView: View {
             }
         }
         .sheet(isPresented: $isOpen, onDismiss: {isOpen = false}) {
-            CreateNewTask { newTaskName, newTaskDesc, newCompleted in
-                let newEntry = Task(type: .sr, name: newTaskName, desc: newTaskDesc, repCnt: newCompleted)
-                context.insert(newEntry)
+            CreateNewTask { newTask in
+                context.insert(newTask)
                 try? context.save()
             }
         }

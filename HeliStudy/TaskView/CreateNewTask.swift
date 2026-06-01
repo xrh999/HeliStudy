@@ -8,18 +8,18 @@
 import SwiftUI
  
 struct CreateNewTask: View {
-    var onSave: (String, String, Int) -> Void = { _,_,_ in }
+    var onSave: (Task) -> Void = { _ in }
     @State private var taskName = ""
     @State private var taskDesc = ""
-    @State private var completed = 1
+    @State private var amtCompleted = 1
     @State private var confirmDeletion = false
     @State private var showEmptyAlert = false
     @State private var endRepeat = false
-    @State private var repeatDays: Int? = nil
+    @State private var repeatInterval = 1
     @State private var endDate = Date()
     @FocusState private var isKeyboardFocused: Bool
     @Environment(\.dismiss) private var dismiss
-    @State private var selectedTask: TaskType = .repeated
+    @State private var selectedTaskType: TaskType = .repeated
     
     var body: some View {
         NavigationStack {
@@ -32,7 +32,7 @@ struct CreateNewTask: View {
                             .focused($isKeyboardFocused)
                     }
                     Section(header: Text("Task type")) {
-                        Picker (selection: $selectedTask) {
+                        Picker (selection: $selectedTaskType) {
                             Text("Spaced").tag(TaskType.sr)
                             Text("Repeated").tag(TaskType.repeated)
                             Text("Normal").tag(TaskType.normal)
@@ -41,7 +41,7 @@ struct CreateNewTask: View {
                         }
                         .pickerStyle(.segmented)
                     }
-                    switch selectedTask {
+                    switch selectedTaskType {
                     case .sr:
                         NewSRTaskView
                     case .repeated:
@@ -60,10 +60,20 @@ struct CreateNewTask: View {
                 ToolbarItem(placement: .confirmationAction) {
                     Group {
                         Button {
+                            // TODO: Expand check to all fields
                             if (taskName.isEmpty) {
                                 showEmptyAlert = true
                             } else {
-                                onSave(taskName, taskDesc, completed)
+                                let newTask: Task
+                                switch selectedTaskType {
+                                case .sr:
+                                    newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, repCnt: amtCompleted)
+                                case .repeated:
+                                    newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, repeatInterval: repeatInterval, endRepeat: endRepeat, endDate: endDate)
+                                case .normal:
+                                    newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, dueDate: endDate)
+                                }
+                                onSave(newTask)
                                 dismiss()
                             }
                         } label: {
@@ -113,8 +123,8 @@ struct CreateNewTask: View {
     private var NewSRTaskView: some View {
         Group {
             Section(header: Text("Times repeated")) {
-                Stepper(value: $completed, in: 0...Int.max) {
-                    Text("\(completed)")
+                Stepper(value: $amtCompleted, in: 0...Int.max) {
+                    Text("\(amtCompleted)")
                 }
             }
         }
@@ -129,7 +139,7 @@ struct CreateNewTask: View {
                 if (endRepeat) {
                     DatePicker("End date:", selection: $endDate, displayedComponents: .date)
                 }
-                TextField("Repeat interval (in days)", value: $repeatDays, format: .number)
+                TextField("Repeat interval (in days)", value: $repeatInterval, format: .number)
                     .keyboardType(.numberPad)
                     .focused($isKeyboardFocused)
             }

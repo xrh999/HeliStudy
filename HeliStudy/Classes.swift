@@ -28,11 +28,17 @@ class Task: Equatable {
     
     // If it is repeated
     var repeatInterval: Int?
+    var endRepeat: Bool?
+    var endDate: Date?
     
     // If it is normal
     var dueDate: Date?
     var completed: Bool?
     
+    // Spaced: type, name, desc, repCnt
+    // Repeated: type, name, desc, repeatInterval, dueDate
+    // Spaced: type, name, desc, dueDate,
+
     func reviewed() {
         switch type {
         case .sr:
@@ -50,7 +56,8 @@ class Task: Equatable {
         }
     }
     
-    init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), nextDate: Date? = nil, repCnt: Int? = nil, repeatInterval: Int? = nil, dueDate: Date? = nil, completed: Bool? = nil) {
+    // FIXME: make init based off the TaskType
+    init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), nextDate: Date? = nil, repCnt: Int? = nil, repeatInterval: Int? = nil, endRepeat: Bool? = nil, endDate: Date? = nil, dueDate: Date? = nil, completed: Bool? = nil) {
         self.type = type
         self.name = name
         self.desc = desc
@@ -58,6 +65,8 @@ class Task: Equatable {
         self.nextDate = nextDate
         self.repCnt = repCnt
         self.repeatInterval = repeatInterval
+        self.endRepeat = endRepeat
+        self.endDate = endDate
         self.dueDate = dueDate
         self.completed = completed
     }
