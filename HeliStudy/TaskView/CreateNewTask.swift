@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import SwiftData
  
 struct CreateNewTask: View {
     var onSave: (Task) -> Void = { _ in }
@@ -17,10 +18,11 @@ struct CreateNewTask: View {
     @State private var endRepeat = false
     @State private var repeatInterval = 1
     @State private var endDate = Date()
-    @FocusState private var isKeyboardFocused: Bool
-    @Environment(\.dismiss) private var dismiss
     @State private var selectedTaskType: TaskType = .repeated
-    
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var context
+    @FocusState private var isKeyboardFocused: Bool
+
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -73,7 +75,8 @@ struct CreateNewTask: View {
                                 case .normal:
                                     newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, dueDate: endDate)
                                 }
-                                onSave(newTask)
+                                context.insert(newTask)
+                                try? context.save()
                                 dismiss()
                             }
                         } label: {
