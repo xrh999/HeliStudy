@@ -9,7 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct TaskCard: View {
-    let task: Task
+    var namespace: Namespace.ID
+    var task: Task
+    @State var presentedTask: Task?
+    @State private var showTaskSheet = false
+    @Environment(\.colorScheme) private var colorScheme
     var body: some View {
         let icon = switch task.type {
         case .sr:
@@ -19,18 +23,28 @@ struct TaskCard: View {
         case .repeated:
             "star.fill"
         }
-        ZStack {
-            // TODO: Add slight gradients to these colours
-            RoundedRectangle(cornerRadius: 30)
-                .foregroundStyle(Color(task.colour))
-            VStack {
-                Label("\(task.name)", systemImage: icon)
-                    .fontWeight(.semibold)
-                    .lineLimit(3)
-                    .fixedSize(horizontal: false, vertical: true)
+        Button {
+            presentedTask = task
+        } label: {
+            ZStack {
+                // TODO: Add slight gradients to these colours
+                RoundedRectangle(cornerRadius: 30)
+                    .foregroundStyle(Color(task.colour))
+                VStack {
+                    Label("\(task.name)", systemImage: icon)
+                        .fontWeight(.semibold)
+                        .lineLimit(3)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .foregroundStyle(colorScheme == .light ? .black : .white)
+                }
+                .frame(height: 75, alignment: .top)
+                .padding()
             }
-            .frame(height: 75, alignment: .top)
-            .padding()
+        }
+        .matchedTransitionSource(id: task.persistentModelID, in: namespace)
+        .fullScreenCover(item: $presentedTask) { task in
+            TaskCardDetails(task: task)
+                .navigationTransition(.zoom(sourceID: task.persistentModelID, in: namespace))
         }
     }
 }
@@ -39,6 +53,7 @@ struct TaskView: View {
     @Environment(\.modelContext) private var context
     @Query private var tasks: [Task]
     @State private var isOpen = false
+    @Namespace private var namespace
     var body: some View {
         NavigationStack {
             VStack {
@@ -49,7 +64,7 @@ struct TaskView: View {
                     let columns = [GridItem(.flexible(minimum: 190)), GridItem(.flexible(minimum: 190))]
                     LazyVGrid(columns: columns){
                         ForEach(tasks) { task in
-                            TaskCard(task: task)
+                            TaskCard(namespace: namespace, task: task)
                         }
                     }
                 }
@@ -84,3 +99,4 @@ struct TaskView: View {
     TaskView()
         .modelContainer(for: Task.self, inMemory: true)
 }
+

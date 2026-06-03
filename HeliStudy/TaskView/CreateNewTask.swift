@@ -8,8 +8,9 @@
 import SwiftUI
 import SwiftData
  
+// TODO: Limit date picker
+
 struct CreateNewTask: View {
-    var onSave: (Task) -> Void = { _ in }
     @State private var taskName = ""
     @State private var taskDesc = ""
     @State private var amtCompleted = 1
@@ -18,7 +19,7 @@ struct CreateNewTask: View {
     @State private var endRepeat = false
     @State private var repeatInterval = 1
     @State private var endDate = Date()
-    @State private var selectedTaskType: TaskType = .repeated
+    @State private var selectedTaskType: TaskType = .sr
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @FocusState private var isKeyboardFocused: Bool
@@ -26,22 +27,22 @@ struct CreateNewTask: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
+                Picker (selection: $selectedTaskType) {
+                    Text("Spaced").tag(TaskType.sr)
+                    Text("Repeated").tag(TaskType.repeated)
+                    Text("Normal").tag(TaskType.normal)
+                } label: {
+                    Text("")
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 367)
+                .padding(6)
                 Form {
                     Section(header: Text("Task info")) {
                         TextField("Task Name", text: $taskName)
                             .focused($isKeyboardFocused)
                         TextField("Description (optional)", text: $taskDesc)
                             .focused($isKeyboardFocused)
-                    }
-                    Section(header: Text("Task type")) {
-                        Picker (selection: $selectedTaskType) {
-                            Text("Spaced").tag(TaskType.sr)
-                            Text("Repeated").tag(TaskType.repeated)
-                            Text("Normal").tag(TaskType.normal)
-                        } label: {
-                            Text("")
-                        }
-                        .pickerStyle(.segmented)
                     }
                     switch selectedTaskType {
                     case .sr:
@@ -118,11 +119,14 @@ struct CreateNewTask: View {
                     }
                 }
             }
+            .padding(5)
+            .background(
+                Color(uiColor: .systemGroupedBackground)
+                    .ignoresSafeArea()
+            )
         }
-        .padding(5)
-        .background(Color(uiColor: .systemGroupedBackground))
     }
-    
+
     private var NewSRTaskView: some View {
         Group {
             Section(header: Text("Times repeated")) {
