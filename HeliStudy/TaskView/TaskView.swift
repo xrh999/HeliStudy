@@ -11,7 +11,7 @@ import SwiftData
 struct TaskCard: View {
     var namespace: Namespace.ID
     var task: Task
-    @State var presentedTask: Task?
+    @State var presentedTask = false
     @State private var showTaskSheet = false
     @Environment(\.colorScheme) private var colorScheme
     var body: some View {
@@ -24,12 +24,12 @@ struct TaskCard: View {
             "star.fill"
         }
         Button {
-            presentedTask = task
+            presentedTask.toggle()
         } label: {
             ZStack {
                 // TODO: Add slight gradients to these colours
                 RoundedRectangle(cornerRadius: 30)
-                    .foregroundStyle(Color(task.colour))
+                    .foregroundStyle(Color(task.colour).gradient)
                 VStack {
                     Label("\(task.name)", systemImage: icon)
                         .fontWeight(.semibold)
@@ -42,7 +42,7 @@ struct TaskCard: View {
             }
         }
         .matchedTransitionSource(id: task.persistentModelID, in: namespace)
-        .fullScreenCover(item: $presentedTask) { task in
+        .fullScreenCover(isPresented: $presentedTask) {
             TaskCardDetails(task: task)
                 .navigationTransition(.zoom(sourceID: task.persistentModelID, in: namespace))
         }
@@ -53,6 +53,7 @@ struct TaskView: View {
     @Environment(\.modelContext) private var context
     @Query private var tasks: [Task]
     @State private var isOpen = false
+    @State private var userQuery = ""
     @Namespace private var namespace
     var body: some View {
         NavigationStack {
@@ -69,6 +70,7 @@ struct TaskView: View {
                     }
                 }
             }
+            .searchable(text: $userQuery)
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             .navigationTitle("Tasks")
             .toolbar{
@@ -78,11 +80,13 @@ struct TaskView: View {
                     Image(systemName: "plus")
                 }
             }
+            .padding()
         }
         .sheet(isPresented: $isOpen, onDismiss: {isOpen = false}) {
-            CreateNewTask()
+            NavigationStack{
+                TaskEditorView(mode: .create)
+            }
         }
-        .padding()
     }
     private var emptyState: some View {
         ContentUnavailableView(
