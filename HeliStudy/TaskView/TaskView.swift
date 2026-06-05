@@ -27,7 +27,6 @@ struct TaskCard: View {
             presentedTask.toggle()
         } label: {
             ZStack {
-                // TODO: Add slight gradients to these colours
                 RoundedRectangle(cornerRadius: 30)
                     .foregroundStyle(Color(task.colour).gradient)
                 VStack {
@@ -44,6 +43,7 @@ struct TaskCard: View {
         .matchedTransitionSource(id: task.persistentModelID, in: namespace)
         .fullScreenCover(isPresented: $presentedTask) {
             NavigationStack{
+                // TODO: add in context menu with Edit, Delete, Rename, and Duplicate options
                 TaskEditorView(mode: .edit, task: task)
             }
             .navigationTransition(.zoom(sourceID: task.persistentModelID, in: namespace))
