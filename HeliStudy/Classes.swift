@@ -16,7 +16,7 @@ enum TaskType: Int, Codable {
 }
 
 enum EditorMode {
-    case edit, view, create
+    case edit, create
 }
 enum CardColours: String, Codable, CaseIterable {
     case ashGrey,

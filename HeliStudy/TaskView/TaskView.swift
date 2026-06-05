@@ -43,8 +43,10 @@ struct TaskCard: View {
         }
         .matchedTransitionSource(id: task.persistentModelID, in: namespace)
         .fullScreenCover(isPresented: $presentedTask) {
-            TaskCardDetails(task: task)
-                .navigationTransition(.zoom(sourceID: task.persistentModelID, in: namespace))
+            NavigationStack{
+                TaskEditorView(mode: .edit, task: task)
+            }
+            .navigationTransition(.zoom(sourceID: task.persistentModelID, in: namespace))
         }
     }
 }
