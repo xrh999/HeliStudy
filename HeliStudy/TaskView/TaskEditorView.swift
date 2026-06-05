@@ -8,10 +8,14 @@
 import SwiftUI
 import SwiftData
  
-// TODO: Limit date picker
+// TODO: Refactor code to only use a Task instead of @State spam
 
 struct TaskEditorView: View {
     var mode: EditorMode
+    let dateRange: ClosedRange<Date> = {
+        let now = Date.now
+        return now...Date.distantFuture
+    }()
     @State private var taskName = ""
     @State private var taskDesc = ""
     @State private var amtCompleted = 1
@@ -180,7 +184,7 @@ struct TaskEditorView: View {
                     Text("End repeat")
                 }
                 if (endRepeat) {
-                    DatePicker("End date:", selection: $endDate, displayedComponents: .date)
+                    DatePicker("End date:", selection: $endDate, in: dateRange, displayedComponents: .date)
                 }
                 TextField("Repeat interval (in days)", value: $repeatInterval, format: .number)
                     .keyboardType(.numberPad)
@@ -192,12 +196,13 @@ struct TaskEditorView: View {
     private var NewNormalTaskView: some View {
         Group {
             Section(header: Text("Schedule")) {
-                DatePicker("Due date", selection: $endDate, displayedComponents: .date)
+                DatePicker("Due date", selection: $endDate, in: dateRange, displayedComponents: .date)
             }
         }
     }
     
     private func Save () {
+        // TODO: Add in code for saving a task
         let newTask: Task
         switch selectedTaskType {
         case .sr:

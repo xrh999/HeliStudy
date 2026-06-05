@@ -79,18 +79,24 @@ class Task: Equatable {
     
     // FIXME: make init based off the TaskType
     init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), repCnt: Int? = nil, repeatInterval: Int? = nil, endRepeat: Bool? = nil, endDate: Date? = nil, dueDate: Date? = nil) {
-        self.colour = CardColours.allCases.randomElement()!.colour
-        self.type = type
-        self.name = name
-        self.desc = desc
-        self.dateCreated = dateCreated
         // TODO: Implement actual logic
-        self.nextDate = Date()
-        self.repCnt = repCnt
-        self.repeatInterval = repeatInterval
-        self.endRepeat = endRepeat
-        self.endDate = endDate
-        self.dueDate = dueDate
+        self.type = type
+        self.name = name;
+        self.desc = desc;
+        self.dateCreated = dateCreated
         self.completed = false
+        self.colour = CardColours.allCases.randomElement()!.colour
+        switch type {
+        case .normal:
+            self.dueDate = dueDate
+        case .repeated:
+            self.endDate = endDate
+            self.repeatInterval = repeatInterval
+            self.repCnt = repCnt
+            self.nextDate = Date()
+        case .sr:
+            self.nextDate = Date()
+            self.repCnt = repCnt
+        }
     }
 }

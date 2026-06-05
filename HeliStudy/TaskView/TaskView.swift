@@ -27,7 +27,6 @@ struct TaskCard: View {
             presentedTask.toggle()
         } label: {
             ZStack {
-                // TODO: Add slight gradients to these colours
                 RoundedRectangle(cornerRadius: 30)
                     .foregroundStyle(Color(task.colour).gradient)
                 VStack {
