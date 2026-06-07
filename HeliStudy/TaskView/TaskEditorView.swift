@@ -6,48 +6,24 @@
 //
 
 import SwiftUI
+import Observation
 import SwiftData
  
-// TODO: Refactor code to only use a Task instead of @State spam
-
 struct TaskEditorView: View {
+    let task: Task?
     var mode: EditorMode
-    let dateRange: ClosedRange<Date> = {
-        let now = Date.now
-        return now...Date.distantFuture
-    }()
-    @State private var taskName = ""
-    @State private var taskDesc = ""
-    @State private var amtCompleted = 1
+    let dateRange = Date.now...Date.distantFuture
+    @State private var draft: DraftTask
     @State private var confirmDeletion = false
     @State private var showEmptyAlert = false
-    @State private var endRepeat = false
-    @State private var repeatInterval = 1
-    @State private var endDate = Date()
-    @State private var selectedTaskType: TaskType = .sr
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @FocusState private var isKeyboardFocused: Bool
     
-    init(mode: EditorMode, task: Task? = nil) {
+    init(task: Task? = nil, mode: EditorMode) {
+        self.task = task
         self.mode = mode
-        if let task = task {
-            _taskName = State(initialValue: task.name)
-            _taskDesc = State(initialValue: task.desc ?? "")
-            _selectedTaskType = State(initialValue: task.type)
-            _amtCompleted = State(initialValue: task.repCnt ?? 1)
-            _repeatInterval = State(initialValue: task.repeatInterval ?? 1)
-            _endRepeat = State(initialValue: task.endRepeat ?? false)
-            _endDate = State(initialValue: task.endDate ?? task.dueDate ?? Date())
-        } else {
-            _taskName = State(initialValue: "")
-            _taskDesc = State(initialValue: "")
-            _selectedTaskType = State(initialValue: .sr)
-            _amtCompleted = State(initialValue: 1)
-            _repeatInterval = State(initialValue: 1)
-            _endRepeat = State(initialValue: false)
-            _endDate = State(initialValue: Date())
-        }
+        _draft = State(initialValue: DraftTask(task: task))
     }
     
     var body: some View {
@@ -55,14 +31,14 @@ struct TaskEditorView: View {
         case .create:
             "Create Task"
         case .edit:
-            "Edit \(taskName)"
+            "Edit \(draft.taskName)"
         }
         Group {
             VStack(spacing: 0) {
                 TaskPicker
                 Form {
                     MandatoryTaskItems
-                    switch selectedTaskType {
+                    switch draft.taskType {
                     case .sr:
                         NewSRTaskView
                     case .repeated:
@@ -82,7 +58,7 @@ struct TaskEditorView: View {
                     Group {
                         Button {
                             // TODO: Expand check to all fields
-                            if (taskName.isEmpty) {
+                            if (draft.taskName.isEmpty) {
                                 showEmptyAlert = true
                             } else {
                                 Save()
@@ -101,7 +77,7 @@ struct TaskEditorView: View {
                     ToolbarItem(placement: .topBarLeading) {
                         Group {
                             Button {
-                                if (!taskName.isEmpty) { confirmDeletion = true }
+                                if (!draft.taskName.isEmpty) { confirmDeletion = true }
                                 else { dismiss() }
                             } label: {
                                 Image(systemName: "trash")
@@ -146,7 +122,7 @@ struct TaskEditorView: View {
     }
     
     private var TaskPicker: some View {
-        Picker (selection: $selectedTaskType) {
+        Picker (selection: $draft.taskType) {
             Text("Spaced").tag(TaskType.sr)
             Text("Repeated").tag(TaskType.repeated)
             Text("Normal").tag(TaskType.normal)
@@ -160,9 +136,9 @@ struct TaskEditorView: View {
     
     private var MandatoryTaskItems: some View {
         Section(header: Text("Task info")) {
-            TextField("Task Name", text: $taskName)
+            TextField("Task Name", text: $draft.taskName)
                 .focused($isKeyboardFocused)
-            TextField("Description (optional)", text: $taskDesc)
+            TextField("Description (optional)", text: $draft.taskDesc)
                 .focused($isKeyboardFocused)
         }
     }
@@ -170,8 +146,8 @@ struct TaskEditorView: View {
     private var NewSRTaskView: some View {
         Group {
             Section(header: Text("Times repeated")) {
-                Stepper(value: $amtCompleted, in: 0...Int.max) {
-                    Text("\(amtCompleted)")
+                Stepper(value: $draft.repCnt, in: 0...Int.max) {
+                    Text("\(draft.repCnt)")
                 }
             }
         }
@@ -180,13 +156,13 @@ struct TaskEditorView: View {
     private var NewRepeatedTaskView: some View {
         Group {
             Section(header: Text("Repeat")) {
-                Toggle(isOn: $endRepeat) {
+                Toggle(isOn: $draft.endRepeat) {
                     Text("End repeat")
                 }
-                if (endRepeat) {
-                    DatePicker("End date:", selection: $endDate, in: dateRange, displayedComponents: .date)
+                if (draft.endRepeat) {
+                    DatePicker("End date:", selection: $draft.endDate, in: dateRange, displayedComponents: .date)
                 }
-                TextField("Repeat interval (in days)", value: $repeatInterval, format: .number)
+                TextField("Repeat interval (in days)", value: $draft.repeatInterval, format: .number)
                     .keyboardType(.numberPad)
                     .focused($isKeyboardFocused)
             }
@@ -196,7 +172,7 @@ struct TaskEditorView: View {
     private var NewNormalTaskView: some View {
         Group {
             Section(header: Text("Schedule")) {
-                DatePicker("Due date", selection: $endDate, in: dateRange, displayedComponents: [.date, .hourAndMinute])
+                DatePicker("Due date", selection: $draft.endDate, in: dateRange, displayedComponents: [.date, .hourAndMinute])
             }
         }
     }
@@ -204,13 +180,13 @@ struct TaskEditorView: View {
     private func Save () {
         // TODO: Add in code for saving a task
         let newTask: Task
-        switch selectedTaskType {
+        switch draft.taskType {
         case .sr:
-            newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, repCnt: amtCompleted)
+            newTask = Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repCnt: draft.repCnt)
         case .repeated:
-            newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, repeatInterval: repeatInterval, endRepeat: endRepeat, endDate: endDate)
+            newTask = Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repeatInterval: draft.repeatInterval, endRepeat: draft.endRepeat, endDate: draft.endDate)
         case .normal:
-            newTask = Task(type: selectedTaskType, name: taskName, desc: taskDesc, dueDate: endDate)
+            newTask = Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, dueDate: draft.endDate)
         }
         context.insert(newTask)
         try? context.save()

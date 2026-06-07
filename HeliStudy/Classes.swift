@@ -100,3 +100,41 @@ class Task: Equatable {
         }
     }
 }
+
+@Observable
+class DraftTask {
+    var taskType: TaskType
+    var taskName: String
+    var taskDesc: String
+    var repCnt: Int
+    var repeatInterval: Int
+    var endRepeat: Bool
+    var endDate: Date
+    var dueDate: Date? = nil
+    var completed: Bool
+    
+    init(task: Task? = nil) {
+        if let given = task {
+            taskType = given.type
+            taskName = given.name
+            taskDesc = given.desc ?? ""
+            repCnt = given.repCnt ?? 1
+            repeatInterval = given.repeatInterval ?? 1
+            endRepeat = given.endRepeat ?? false
+            endDate = given.endDate ?? Date()
+            dueDate = given.dueDate
+            completed = given.completed ?? false
+        } else {
+            taskType = .sr
+            taskName = ""
+            taskDesc = ""
+            repCnt = 1
+            repeatInterval = 1
+            endRepeat = false
+            endDate = Date()
+            dueDate = nil
+            completed = false
+        }
+    }
+}
+
