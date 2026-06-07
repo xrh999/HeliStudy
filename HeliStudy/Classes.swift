@@ -135,5 +135,35 @@ class DraftTask {
             completed = false
         }
     }
+    
+    
+    func apply(to task: Task) {
+        task.type = taskType
+        task.name = taskName
+        task.desc = taskDesc.isEmpty ? nil : taskDesc
+
+        task.repCnt = nil
+        task.repeatInterval = nil
+        task.endRepeat = nil
+        task.endDate = nil
+        task.dueDate = nil
+        task.completed = nil
+
+        switch taskType {
+        case .sr:
+            task.repCnt = repCnt
+            task.nextDate = Date()
+
+        case .repeated:
+            task.repeatInterval = repeatInterval
+            task.endRepeat = endRepeat
+            task.endDate = endDate
+            task.nextDate = Date()
+
+        case .normal:
+            task.dueDate = dueDate
+            task.completed = false
+        }
+    }
 }
 

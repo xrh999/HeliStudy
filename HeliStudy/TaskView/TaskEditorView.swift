@@ -16,6 +16,7 @@ struct TaskEditorView: View {
     @State private var draft: DraftTask
     @State private var confirmDeletion = false
     @State private var showEmptyAlert = false
+    @State private var showEditedAlert = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
     @FocusState private var isKeyboardFocused: Bool
@@ -62,11 +63,24 @@ struct TaskEditorView: View {
                                 showEmptyAlert = true
                             } else {
                                 Save()
+                                showEditedAlert.toggle()
                             }
                         } label: {
                             Image(systemName: "checkmark")
                         }
                         .buttonStyle(.borderedProminent)
+                        .alert("Task saved!", isPresented: $showEditedAlert) {
+                            Button("Continue Editing") {
+                                showEditedAlert.toggle()
+                            }
+                            Button {
+                                showEditedAlert.toggle()
+                                dismiss()
+                            } label: {
+                                Text("Exit")
+                                    .foregroundStyle(.blue)
+                            }
+                        }
                     }
                     .alert("Please fill it in", isPresented: $showEmptyAlert) {
                         Button("Ok", role: .cancel) {showEmptyAlert = false}
@@ -180,17 +194,23 @@ struct TaskEditorView: View {
     private func Save () {
         // TODO: Add in code for saving a task
         let newTask: Task
-        switch draft.taskType {
-        case .sr:
-            newTask = Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repCnt: draft.repCnt)
-        case .repeated:
-            newTask = Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repeatInterval: draft.repeatInterval, endRepeat: draft.endRepeat, endDate: draft.endDate)
-        case .normal:
-            newTask = Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, dueDate: draft.endDate)
+        switch mode {
+        case .create:
+            switch draft.taskType {
+            case .sr:
+                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repCnt: draft.repCnt))
+            case .repeated:
+                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repeatInterval: draft.repeatInterval, endRepeat: draft.endRepeat, endDate: draft.endDate))
+            case .normal:
+                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, dueDate: draft.endDate))
+            }
+        case .edit:
+            guard let task = task else {
+                return
+            }
+            draft.apply(to: task)
         }
-        context.insert(newTask)
         try? context.save()
-        dismiss()
     }
     
 }
