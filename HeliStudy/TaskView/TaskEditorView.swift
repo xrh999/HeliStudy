@@ -55,79 +55,35 @@ struct TaskEditorView: View {
             .navigationTitle(navTitle)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Group {
-                        Button {
-                            // TODO: Expand check to all fields
-                            if (draft.taskName.isEmpty) {
-                                showEmptyAlert = true
-                            } else {
-                                Save()
-                                showEditedAlert.toggle()
-                            }
-                        } label: {
-                            Image(systemName: "checkmark")
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .alert("Task saved!", isPresented: $showEditedAlert) {
-                            Button("Continue Editing") {
-                                showEditedAlert.toggle()
-                            }
-                            Button {
-                                showEditedAlert.toggle()
-                                dismiss()
-                            } label: {
-                                Text("Exit")
-                                    .foregroundStyle(.blue)
-                            }
-                        }
-                    }
-                    .alert("Please fill it in", isPresented: $showEmptyAlert) {
-                        Button("Ok", role: .cancel) {showEmptyAlert = false}
-                    }
+                ToolbarItem(placement: .topBarLeading) {
+                    LeadingToolbarView(mode: mode, draft: $draft, confirmDeletion: $confirmDeletion)
                 }
-                switch mode {
-                case .create:
-                    ToolbarItem(placement: .topBarLeading) {
-                        Group {
-                            Button {
-                                if (!draft.taskName.isEmpty) { confirmDeletion = true }
-                                else { dismiss() }
-                            } label: {
-                                Image(systemName: "trash")
-                            }
-                            .tint(.red)
-                        }
-                        .alert(
-                            "Are you sure?",
-                            isPresented: $confirmDeletion
-                        ) {
-                            Button(role: .destructive) {
-                                confirmDeletion = false
-                                dismiss()
-                            } label: {
-                                Text("Kaboom")
-                            }
-                            Button(role: .cancel) {
-                                confirmDeletion = false
-                            } label: {
-                                Text("Cancel")
-                            }
-                        } message: {
-                            Text("All changes will be unsaved")
-                        }
-                    }
-                case .edit:
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button {
-                            dismiss()
-                        } label: {
-                            Image(systemName: "chevron.backward")
-                        }
-                    }
+                ToolbarItem(placement: .topBarTrailing) {
+                    TrailingToolbarView(mode: mode, onSave: save(), draft: $draft, showEmptyAlert: $showEmptyAlert, showEditedAlert: $showEditedAlert)
                 }
             }
-            .padding(5)
+            .confirmationDialog("Are you sure?", isPresented: $confirmDeletion) {
+                Button("Kaboom", role: .destructive) {
+                    dismiss()
+                }
+                Button("Cancel", role: .cancel) { }
+            }
+            .alert("Task saved!", isPresented: $showEditedAlert) {
+                Button("Continue Editing") {
+                    showEditedAlert.toggle()
+                }
+                Button {
+                    showEditedAlert.toggle()
+                    dismiss()
+                } label: {
+                    Text("Exit")
+                        .foregroundStyle(.blue)
+                }
+            }
+            .alert("Please fill it in", isPresented: $showEmptyAlert) {
+                Button("Ok", role: .cancel) {showEmptyAlert = false}
+            }
+           .padding(5)
             .background(
                 Color(uiColor: .systemGroupedBackground)
                     .ignoresSafeArea()
@@ -191,9 +147,7 @@ struct TaskEditorView: View {
         }
     }
     
-    private func Save () {
-        // TODO: Add in code for saving a task
-        let newTask: Task
+    func save () {
         switch mode {
         case .create:
             switch draft.taskType {
@@ -212,9 +166,61 @@ struct TaskEditorView: View {
         }
         try? context.save()
     }
-    
 }
- 
+
+struct LeadingToolbarView: View {
+    var mode: EditorMode
+    var onSave: () -> Void
+    @Binding var draft: DraftTask
+    @Binding var confirmDeletion: Bool
+    @Environment(\.dismiss) private var dismiss
+    var body: some View {
+        switch mode {
+            case .create:
+                Button {
+                    if (!draft.taskName.isEmpty) { confirmDeletion.toggle() }
+                    else { dismiss() }
+                } label: {
+                    Image(systemName: "trash")
+                }
+                .tint(.red)
+            case .edit:
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.backward")
+                }
+            }
+       
+    }
+}
+
+struct TrailingToolbarView: View {
+    var mode: EditorMode
+    var onSave: () -> Void
+    @Binding var draft: DraftTask
+    @Binding var showEmptyAlert: Bool
+    @Binding var showEditedAlert: Bool
+    @Environment(\.dismiss) private var dismiss
+    
+    var body: some View {
+        Button {
+            // TODO: Expand check to all fields
+            if (draft.taskName.isEmpty) {
+                showEmptyAlert = true
+            } else {
+                if case .edit = mode {
+                    showEditedAlert.toggle()
+                }
+                onSave()
+            }
+        } label: {
+            Image(systemName: "checkmark")
+        }
+        .buttonStyle(.borderedProminent)
+    }
+}
+
 #Preview {
     TaskEditorView(mode: .create)
 }
