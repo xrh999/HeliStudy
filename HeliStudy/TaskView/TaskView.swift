@@ -12,7 +12,8 @@ struct TaskCard: View {
     var namespace: Namespace.ID
     var task: Task
     @State var presentedTask = false
-    @State private var showTaskSheet = false
+    @State private var showDeleteAlert = false
+    @Environment(\.modelContext) private var context
     @Environment(\.colorScheme) private var colorScheme
     var body: some View {
         let icon = switch task.type {
@@ -38,6 +39,26 @@ struct TaskCard: View {
                 }
                 .frame(height: 75, alignment: .top)
                 .padding()
+            }
+            .contextMenu(menuItems: {
+                Button {
+                    presentedTask.toggle()
+                } label: {
+                    Label("Edit", systemImage: "pencil")
+                        .tint(.blue)
+                }
+                Button {
+                    showDeleteAlert.toggle()
+                } label: {
+                    Label("Delete", systemImage: "trash")
+                        .tint(.red)
+                }
+            })
+            .alert("Delete task?", isPresented: $showDeleteAlert) {
+                Button("Yes", role: .destructive) {
+                    context.delete(task)
+                }
+                Button("Cancel", role: .cancel) { }
             }
         }
         .matchedTransitionSource(id: task.persistentModelID, in: namespace)
