@@ -77,7 +77,6 @@ class Task: Equatable {
         }
     }
     
-    // FIXME: make init based off the TaskType
     init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), repCnt: Int? = nil, repeatInterval: Int? = nil, endRepeat: Bool? = nil, endDate: Date? = nil, dueDate: Date? = nil) {
         // TODO: Implement actual logic
         self.type = type

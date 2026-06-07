@@ -20,7 +20,7 @@ struct TaskEditorView: View {
     @Environment(\.modelContext) private var context
     @FocusState private var isKeyboardFocused: Bool
     
-    init(task: Task? = nil, mode: EditorMode) {
+    init(mode: EditorMode, task: Task? = nil) {
         self.task = task
         self.mode = mode
         _draft = State(initialValue: DraftTask(task: task))
