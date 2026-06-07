@@ -9,55 +9,6 @@ import SwiftUI
 import Observation
 import SwiftData
  
-struct LeadingToolbarView: View {
-    var mode: EditorMode
-    @Binding var draft: DraftTask
-    @Binding var confirmDeletion: Bool
-    @Environment(\.dismiss) private var dismiss
-    var body: some View {
-        switch mode {
-            case .create:
-                Button {
-                    if (!draft.taskName.isEmpty) { confirmDeletion.toggle() }
-                    else { dismiss() }
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .tint(.red)
-            case .edit:
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.backward")
-                }
-            }
-       
-    }
-}
-struct TrailingToolbarView: View {
-    var mode: EditorMode
-    @Binding var draft: DraftTask
-    @Binding var showEmptyAlert: Bool
-    @Binding var showEditedAlert: Bool
-    @Environment(\.dismiss) private var dismiss
-    
-    var body: some View {
-        Button {
-            // TODO: Expand check to all fields
-            if (draft.taskName.isEmpty) {
-                showEmptyAlert = true
-            } else {
-                if case .edit = mode {
-                    showEditedAlert.toggle()
-                }
-            }
-        } label: {
-            Image(systemName: "checkmark")
-        }
-        .buttonStyle(.borderedProminent)
-    }
-}
-
 struct TaskEditorView: View {
     let task: Task?
     var mode: EditorMode
@@ -108,7 +59,7 @@ struct TaskEditorView: View {
                     LeadingToolbarView(mode: mode, draft: $draft, confirmDeletion: $confirmDeletion)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    TrailingToolbarView(mode: mode, onSave: save(), draft: $draft, showEmptyAlert: $showEmptyAlert, showEditedAlert: $showEditedAlert)
+                    TrailingToolbarView(mode: mode, onSave: save, draft: $draft, showEmptyAlert: $showEmptyAlert, showEditedAlert: $showEditedAlert)
                 }
             }
             .confirmationDialog("Are you sure?", isPresented: $confirmDeletion) {
@@ -219,28 +170,26 @@ struct TaskEditorView: View {
 
 struct LeadingToolbarView: View {
     var mode: EditorMode
-    var onSave: () -> Void
     @Binding var draft: DraftTask
     @Binding var confirmDeletion: Bool
     @Environment(\.dismiss) private var dismiss
     var body: some View {
         switch mode {
-            case .create:
-                Button {
-                    if (!draft.taskName.isEmpty) { confirmDeletion.toggle() }
-                    else { dismiss() }
-                } label: {
-                    Image(systemName: "trash")
-                }
-                .tint(.red)
-            case .edit:
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.backward")
-                }
+        case .create:
+            Button {
+                if (!draft.taskName.isEmpty) { confirmDeletion.toggle() }
+                else { dismiss() }
+            } label: {
+                Image(systemName: "trash")
             }
-       
+            .tint(.red)
+        case .edit:
+            Button {
+                dismiss()
+            } label: {
+                Image(systemName: "chevron.backward")
+            }
+        }
     }
 }
 
