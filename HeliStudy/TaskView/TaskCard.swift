@@ -1,8 +1,8 @@
 //
-//  TaskView.swift
+//  TaskCard.swift
 //  HeliStudy
 //
-//  Created by Huang XR on 31/5/26.
+//  Created by Huang XR on 8/6/26.
 //
 
 import SwiftUI
@@ -61,69 +61,13 @@ struct TaskCard: View {
                 Button("Cancel", role: .cancel) { }
             }
         }
-        .matchedTransitionSource(id: task.persistentModelID, in: namespace)
+        .matchedTransitionSource(id: task.id, in: namespace)
         .fullScreenCover(isPresented: $presentedTask) {
             NavigationStack{
                 // TODO: add in context menu with Edit, Delete, Rename, and Duplicate options
                 TaskEditorView(mode: .edit, task: task)
             }
-            .navigationTransition(.zoom(sourceID: task.persistentModelID, in: namespace))
+            .navigationTransition(.zoom(sourceID: task.id, in: namespace))
         }
     }
 }
-
-struct TaskView: View {
-    @Environment(\.modelContext) private var context
-    @Query private var tasks: [Task]
-    @State private var isOpen = false
-    @State private var userQuery = ""
-    @Namespace private var namespace
-    var body: some View {
-        NavigationStack {
-            VStack {
-                if tasks.isEmpty {
-                    emptyState
-                }
-                else {
-                    let columns = [GridItem(.flexible(minimum: 190)), GridItem(.flexible(minimum: 190))]
-                    LazyVGrid(columns: columns){
-                        ForEach(tasks) { task in
-                            TaskCard(namespace: namespace, task: task)
-                        }
-                    }
-                }
-            }
-            .searchable(text: $userQuery)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            .navigationTitle("Tasks")
-            .toolbar{
-                Button {
-                    isOpen = true
-                } label: {
-                    Image(systemName: "plus")
-                }
-            }
-            .padding()
-        }
-        .sheet(isPresented: $isOpen, onDismiss: {isOpen = false}) {
-            NavigationStack{
-                TaskEditorView(mode: .create)
-            }
-        }
-    }
-    private var emptyState: some View {
-        ContentUnavailableView(
-            "No Tasks",
-            systemImage: "checklist",
-            description: Text("Tap + to add a new task")
-        )
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-}
-
-
-#Preview {
-    TaskView()
-        .modelContainer(for: Task.self, inMemory: true)
-}
-

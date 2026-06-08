@@ -10,6 +10,9 @@ import SwiftData
 import SwiftUI
 
 var fib = [1, 1, 2, 3]
+var now: Date {
+    Date()
+}
 
 enum TaskType: Int, Codable {
     case sr = 0, repeated = 1, normal = 2
@@ -18,6 +21,11 @@ enum TaskType: Int, Codable {
 enum EditorMode {
     case edit, create
 }
+
+enum ViewMode {
+    case all, today
+}
+
 enum CardColours: String, Codable, CaseIterable {
     case ashGrey,
     dessertSand,
@@ -35,6 +43,7 @@ enum CardColours: String, Codable, CaseIterable {
 
 @Model
 class Task: Equatable {
+    @Attribute(.unique) var id: UUID
     var type: TaskType
     var name: String
     var desc: String?
@@ -42,7 +51,7 @@ class Task: Equatable {
     var colour: String
     
     // If it is spaced or repeated
-    var nextDate: Date?
+    var nextDate: Date
     
     // If it is spaced
     var repCnt: Int?
@@ -53,8 +62,7 @@ class Task: Equatable {
     var endDate: Date?
     
     // If it is normal
-    var dueDate: Date?
-    var completed: Bool?
+    var completed = false
     
     // Spaced: type, name, desc, repCnt
     // Repeated: type, name, desc, repeatInterval, dueDate
@@ -63,22 +71,38 @@ class Task: Equatable {
     func reviewed() {
         switch type {
         case .sr:
-            if (repCnt! >= fib.count) {
-                while (fib.count <= repCnt!) {
-                    fib.append(fib[fib.count - 1] + fib[fib.count - 2]);
+            let index = repCnt ?? 0
+
+            guard fib.count > index else { return }
+
+            if index >= fib.count {
+                while fib.count <= index {
+                    fib.append(fib[fib.count - 1] + fib[fib.count - 2])
                 }
             }
-            nextDate = Calendar.current.date(byAdding: .day, value: fib[repCnt!], to: nextDate!)
-            repCnt! += 1
+
+            nextDate = Calendar.current.date(
+                byAdding: .day,
+                value: fib[index],
+                to: nextDate
+            ) ?? nextDate
+
+            repCnt = index + 1
+
         case .repeated:
-            dateCreated = dateCreated.addingTimeInterval(TimeInterval(repeatInterval!))
+            let interval = repeatInterval ?? 0
+            nextDate = nextDate.addingTimeInterval(TimeInterval(interval))
+
+            if let endDate, nextDate > endDate {
+                completed = true
+            }
+
         case .normal:
             completed = true
         }
     }
-    
-    init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), repCnt: Int? = nil, repeatInterval: Int? = nil, endRepeat: Bool? = nil, endDate: Date? = nil, dueDate: Date? = nil) {
-        // TODO: Implement actual logic
+    init (type: TaskType, name: String, desc: String?, dateCreated: Date = Date(), repCnt: Int? = nil, repeatInterval: Int? = nil, endRepeat: Bool? = nil, endDate: Date? = nil) {
+        self.id = UUID()
         self.type = type
         self.name = name;
         self.desc = desc;
@@ -87,7 +111,7 @@ class Task: Equatable {
         self.colour = CardColours.allCases.randomElement()!.colour
         switch type {
         case .normal:
-            self.dueDate = dueDate
+            self.nextDate = endDate ?? Date()
         case .repeated:
             self.endDate = endDate
             self.repeatInterval = repeatInterval
@@ -121,7 +145,6 @@ class DraftTask {
             repeatInterval = given.repeatInterval ?? 1
             endRepeat = given.endRepeat ?? false
             endDate = given.endDate ?? Date()
-            dueDate = given.dueDate
             completed = given.completed ?? false
         } else {
             taskType = .sr
@@ -131,7 +154,6 @@ class DraftTask {
             repeatInterval = 1
             endRepeat = false
             endDate = Date()
-            dueDate = nil
             completed = false
         }
     }
@@ -146,8 +168,6 @@ class DraftTask {
         task.repeatInterval = nil
         task.endRepeat = nil
         task.endDate = nil
-        task.dueDate = nil
-        task.completed = nil
 
         switch taskType {
         case .sr:
@@ -161,8 +181,9 @@ class DraftTask {
             task.nextDate = Date()
 
         case .normal:
-            task.dueDate = dueDate
-            task.completed = false
+            task.endDate = endDate
+            task.completed = completed
+            task.nextDate = endDate ?? Date()
         }
     }
 }

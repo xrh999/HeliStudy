@@ -7,6 +7,8 @@
 
 import SwiftUI
 
+// TODO: make the textfield FocusState enum based
+
 struct TaskPicker: View {
     @Binding var draft: DraftTask
     var body: some View {
@@ -117,9 +119,13 @@ struct TrailingToolbarView: View {
                 showEmptyAlert = true
             } else {
                 if case .edit = mode {
+                    onSave()
                     showEditedAlert.toggle()
                 }
-                onSave()
+                else {
+                    onSave()
+                    dismiss()
+                }
             }
         } label: {
             Image(systemName: "checkmark")

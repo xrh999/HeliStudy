@@ -18,7 +18,6 @@ struct TaskEditorView: View {
     @State private var showEditedAlert = false
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var context
-    @FocusState private var isKeyboardFocused: Bool
     
     init(mode: EditorMode, task: Task? = nil) {
         self.task = task
@@ -47,9 +46,6 @@ struct TaskEditorView: View {
                         NewNormalTaskView(draft: $draft)
                     }
                 }
-                .onTapGesture {
-                    isKeyboardFocused = false
-                }
             }
             .navigationTitle(navTitle)
             .navigationBarTitleDisplayMode(.inline)
@@ -58,7 +54,9 @@ struct TaskEditorView: View {
                     LeadingToolbarView(mode: mode, draft: $draft, confirmDeletion: $confirmDeletion)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    TrailingToolbarView(mode: mode, onSave: save, draft: $draft, showEmptyAlert: $showEmptyAlert, showEditedAlert: $showEditedAlert)
+                    TrailingToolbarView(mode: mode, onSave: {
+                        save()
+                    }, draft: $draft, showEmptyAlert: $showEmptyAlert, showEditedAlert: $showEditedAlert)
                 }
             }
             .confirmationDialog("Are you sure?", isPresented: $confirmDeletion) {
@@ -76,8 +74,8 @@ struct TaskEditorView: View {
                     dismiss()
                 } label: {
                     Text("Exit")
-                        .foregroundStyle(.blue)
                 }
+                .foregroundStyle(.blue)
             }
             .alert("Please fill it in", isPresented: $showEmptyAlert) {
                 Button("Ok", role: .cancel) {showEmptyAlert = false}
@@ -95,11 +93,11 @@ struct TaskEditorView: View {
         case .create:
             switch draft.taskType {
             case .sr:
-                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repCnt: draft.repCnt))
+                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repCnt: draft.repCnt, endDate: Date()))
             case .repeated:
                 context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, repeatInterval: draft.repeatInterval, endRepeat: draft.endRepeat, endDate: draft.endDate))
             case .normal:
-                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, dueDate: draft.endDate))
+                context.insert(Task(type: draft.taskType, name: draft.taskName, desc: draft.taskDesc, endDate: draft.endDate))
             }
         case .edit:
             guard let task = task else {
