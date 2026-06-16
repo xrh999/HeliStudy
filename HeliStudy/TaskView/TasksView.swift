@@ -52,7 +52,6 @@ struct TasksView: View {
                             ForEach(dueTasks) { task in
                                 TaskCard(namespace: namespace, task: task)
                             }
-
                         }
                     }
                 }

@@ -10,9 +10,6 @@ import SwiftData
 import SwiftUI
 
 var fib = [1, 1, 2, 3]
-var now: Date {
-    Date()
-}
 
 enum TaskType: Int, Codable {
     case sr = 0, repeated = 1, normal = 2
@@ -123,6 +120,79 @@ class Task: Equatable {
         }
     }
 }
+
+@Model
+class TagData {
+    var tagName: String
+    private var heatmap: [UInt64]
+    
+    init (tagName: String, size: Int) {
+        self.tagName = tagName
+        heatmap = Array(repeating: 0, count: (size + 63) / 64)
+    }
+
+    private func ensureCapacity(index: Int) {
+        guard index >= 0 else { return }
+        let requiredWords = (index / 64) + 1
+        if heatmap.count < requiredWords {
+            heatmap.append(contentsOf: repeatElement(0, count: requiredWords - heatmap.count))
+        }
+    }
+
+    func get(index: Int) -> Bool {
+        guard index >= 0 else { return false }
+        let word = index / 64
+        if word >= heatmap.count { return false }
+        let bit = UInt64(1) << UInt64(index % 64)
+        return (heatmap[word] & bit) != 0
+    }
+
+    func set(index: Int, value: Bool) {
+        guard index >= 0 else { return }
+        ensureCapacity(index: index)
+        let word = index / 64
+        let mask = UInt64(1) << UInt64(index % 64)
+        if value {
+            heatmap[word] |= mask
+        } else {
+            heatmap[word] &= ~mask
+        }
+    }
+
+    @discardableResult
+    func toggle(index: Int) -> Bool {
+        guard index >= 0 else { return false }
+        ensureCapacity(index: index)
+        let word = index / 64
+        let mask = UInt64(1) << UInt64(index % 64)
+        heatmap[word] ^= mask
+        return (heatmap[word] & mask) != 0
+    }
+
+    func resize(size: Int) {
+        guard size >= 0 else { return }
+        let words = (size + 63) / 64
+        if words > heatmap.count {
+            heatmap.append(contentsOf: repeatElement(0, count: words - heatmap.count))
+        } else if words < heatmap.count {
+            heatmap.removeLast(heatmap.count - words)
+        }
+        if size % 64 != 0, words > 0 {
+            let validBits = (UInt64(1) << UInt64(size % 64)) - 1
+            heatmap[words - 1] = heatmap[words - 1] & validBits
+        }
+    }
+
+    func countSetBits() -> Int {
+        heatmap.reduce(0) { $0 + $1.nonzeroBitCount }
+    }
+
+    func clear() {
+        for i in heatmap.indices { heatmap[i] = 0 }
+    }
+
+}
+
 
 @Observable
 class DraftTask {
